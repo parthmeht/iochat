@@ -31,9 +31,9 @@ $(function(){
 
   socket.on('new message',function (data) {
     if (userId==data.user) {
-      $chat.append('<div class="col-sm-8 pull-right bubble-user"><strong>'+data.user+': </strong>'+data.msg+'</div>');
+      $chat.append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'</div>');
     } else {
-      $chat.append('<div class="col-sm-8 pull-left bubble-others"><strong>'+data.user+'</strong> <small>('+data.flag+'</small>)<strong>:</strong> '+data.msg+'</div>');
+      $chat.append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+'</strong> <small>('+data.flag+'</small>)<strong>:</strong> '+data.msg+'</div>');
     }
   });
 

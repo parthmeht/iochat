@@ -8,9 +8,7 @@ body{
   display: none;
 }
 
-.bubble-others {
-    text-align: left;
-    background-color:  cornsilk;
+.bubble {
     padding: 5px;
     border-radius: 8px;
     margin-top: 10px;
@@ -18,12 +16,16 @@ body{
     border-style: outset;
 }
 
+.bubble-others {
+    text-align: left;
+    background-color:  cornsilk;
+}
+
 .bubble-user {
     text-align: right;
     background-color:  #b3ffcc;
-    padding: 5px;
-    border-radius: 8px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    border-style: outset;
 }
+
+.col-md-offset-right-8 {
+   margin-right: 66.66666667%;
+ }

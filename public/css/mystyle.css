@@ -1,0 +1,29 @@
+
+body{
+  margin-top: 30px;
+  background-color: cadetblue;
+}
+
+#messageArea{
+  display: none;
+}
+
+.bubble-others {
+    text-align: left;
+    background-color:  pink;
+    padding: 5px;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-style: outset;
+}
+
+.bubble-user {
+    text-align: right;
+    background-color:  #b3ffcc;
+    padding: 5px;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-style: outset;
+}

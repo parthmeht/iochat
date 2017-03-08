@@ -26,6 +26,7 @@ io.sockets.on('connection',function(socket){
 		console.log(socket.username+' Disconnected');
 		updateUsernames();
 		dropdown();
+		io.sockets.emit('new disconnect',socket.username);
 		connections.splice(connections.indexOf(socket), 1);
 		console.log('Disconnected: %s sockets Connected',connections.length);
 	});
@@ -50,6 +51,7 @@ io.sockets.on('connection',function(socket){
 		console.log(socket.username+' connected');
 		updateUsernames();
 		dropdown();
+		io.sockets.emit('new connect',socket.username);
 	});
 
 	function updateUsernames() {

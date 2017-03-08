@@ -45,7 +45,7 @@ $(function(){
     e.preventDefault();
     if (globalList.length>0) {
       console.log('inside if condition');
-      for (var i = 0; i < globalList.length; i++) {
+      for (var i = 0; i < globalList[0].length; i++) {
         if (globalList[0][i]!=undefined) {
           if (globalList[0][i].toLowerCase()==$username.val().toLowerCase()) {
             alert("This username is already present try something else....");
@@ -91,5 +91,13 @@ $(function(){
   $("input").on("keypress", function(e) {
     if (e.which === 32 && !this.value.length)
         e.preventDefault();
+  });
+
+  socket.on('new connect',function (data) {
+    $chat.append('<div class="col-md-offset-4 col-md-4" style="color:green;"><strong>'+data+' Connected</strong></div>');
+  });
+
+  socket.on('new disconnect',function (data) {
+    $chat.append('<div class="col-md-offset-4 col-md-4" style="color:red;"><strong>'+data+' Disconnected</strong></div>');
   });
 });

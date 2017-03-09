@@ -29,3 +29,8 @@ body{
 .col-md-offset-right-8 {
    margin-right: 66.66666667%;
  }
+
+ .chat-window{
+   height: 400px;
+   position: static;
+ }

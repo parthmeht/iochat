@@ -12,10 +12,6 @@ $(function(){
   var $welcome = $('#welcome');
   var globalList=[];
 
-  var s = $('<select class="form-control" name="usersDropdown" id="usersDropdown" /><br>');
-  $('<option />', {value: '', text: '----select---'}).appendTo(s);
-  $('<option />', {value: 'all', text: 'all'}).appendTo(s);
-
   $messageForm.submit(function(e) {
     e.preventDefault();
     console.log('Submitted');
@@ -30,8 +26,11 @@ $(function(){
   });
 
   socket.on('new message',function (data) {
+    $('#chat').animate({
+      scrollTop: $('#chat').get(0).scrollHeight}, 2000);
+
     if (userId==data.user) {
-      $chat.append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'</div>');
+      $chat.append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user emoji-wysiwyg-editor"><strong>'+data.user+': </strong>'+data.msg+'</div>');
     } else {
       $chat.append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+'</strong> <small>('+data.flag+'</small>)<strong>:</strong> '+data.msg+'</div>');
     }
@@ -43,6 +42,9 @@ $(function(){
 
   $userForm.submit(function(e) {
     e.preventDefault();
+    if ($username.val()==null || $username.val()=='') {
+      return false;
+    }
     if (globalList.length>0) {
       console.log('inside if condition');
       for (var i = 0; i < globalList[0].length; i++) {
@@ -78,7 +80,7 @@ $(function(){
 
   socket.on('drop down',function(data) {
     var optionsAsString = "";
-    optionsAsString += "<option value=''>---Select---</option>";
+    //optionsAsString += "<option value=''>---Select---</option>";
     optionsAsString += "<option value='all'>all</option>";
     for(var i = 0; i < data.length; i++) {
       if (data[i]!=userId) {
@@ -88,9 +90,13 @@ $(function(){
     $usersDropdown.html(optionsAsString);
   });
 
-  $("input").on("keypress", function(e) {
+  $('#message').on("keypress", function(e) {
     if (e.which === 32 && !this.value.length)
         e.preventDefault();
+    if (e.which === 13) {
+        e.preventDefault();
+        $messageForm.submit();
+    }
   });
 
   socket.on('new connect',function (data) {
@@ -99,5 +105,10 @@ $(function(){
 
   socket.on('new disconnect',function (data) {
     $chat.append('<div class="col-md-offset-4 col-md-4" style="color:red;"><strong>'+data+' Disconnected</strong></div>');
+  });
+
+  socket.on('ip present',function () {
+    $('#username').prop('readonly', true);
+    $('#ipError').append('This ip address is already logged in...you cannot loggin again');
   });
 });

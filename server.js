@@ -5,7 +5,7 @@ var io = require('socket.io').listen(server);
 users = [];
 connections = [];
 var socketsObject = {};
-
+var flag = false;
 server.listen(process.env.PORT || 3000);
 console.log('Server Running ....');
 
@@ -16,17 +16,26 @@ app.get('/',function (req, res) {
 });
 
 io.sockets.on('connection',function(socket){
-	connections.push(socket);
+
 	console.log('Connected: %s sockets Connected',connections.length);
+	var clientIp = socket.request.connection.remoteAddress;
+	for (var i = 0; i < connections.length; i++) {
+		if (connections[i].request.connection.remoteAddress==clientIp) {
+			io.sockets.emit('ip present');
+		}
+	}
+	connections.push(socket);
 	io.sockets.emit('all users', users);
 
 	// Disconnect
 	socket.on('disconnect',function(data){
-		users.splice(users.indexOf(socket.username), 1);
+		if (socket.username!='null' && socket.username!=undefined) {
+			users.splice(users.indexOf(socket.username), 1);
+			io.sockets.emit('new disconnect',socket.username);
+		}
 		console.log(socket.username+' Disconnected');
 		updateUsernames();
 		dropdown();
-		io.sockets.emit('new disconnect',socket.username);
 		connections.splice(connections.indexOf(socket), 1);
 		console.log('Disconnected: %s sockets Connected',connections.length);
 	});
@@ -48,7 +57,7 @@ io.sockets.on('connection',function(socket){
 		socket.username = data;
 		socketsObject[socket.username] = socket;
 		users.push(socket.username);
-		console.log(socket.username+' connected');
+		console.log('Username - '+socket.username+' connected with ip address - '+clientIp);
 		updateUsernames();
 		dropdown();
 		io.sockets.emit('new connect',socket.username);

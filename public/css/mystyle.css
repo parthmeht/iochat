@@ -33,4 +33,11 @@ body{
  .chat-window{
    height: 400px;
    position: static;
+   overflow: auto;
+ }
+
+ .timestamp{
+   color: red;
+   vertical-align: sub;
+   font-size: .8em;
  }

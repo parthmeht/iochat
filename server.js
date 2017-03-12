@@ -5,7 +5,7 @@ var io = require('socket.io').listen(server);
 users = [];
 connections = [];
 var socketsObject = {};
-var flag = false;
+
 server.listen(process.env.PORT || 3000);
 console.log('Server Running ....');
 
@@ -36,30 +36,48 @@ io.sockets.on('connection',function(socket){
 		console.log(socket.username+' Disconnected');
 		updateUsernames();
 		dropdown();
+		chatDiv();
 		connections.splice(connections.indexOf(socket), 1);
 		console.log('Disconnected: %s sockets Connected',connections.length);
 	});
 
 	//send message
 	socket.on('send message all',function (data) {
-		console.log(socket.username+' : '+data);
-		io.sockets.emit('new message',{msg:data,user:socket.username,flag:'public'});
+		var date = new Date();
+		var current_hour = date.getHours();
+		var current_min = date.getMinutes();
+		var current_sec = date.getSeconds();
+		var time = current_hour+':'+current_min+':'+current_sec;
+		console.log(time+' - '+socket.username+' : '+data);
+		io.sockets.emit('new message',{msg:data,user:socket.username,flag:'public',time:time});
 	});
 
 	socket.on('send message', function (message, to) {
-		socketsObject[to].emit('new message',{msg:message,user:socket.username,flag:'private'});
-		socketsObject[socket.username].emit('new message',{msg:message,user:socket.username,flag:'private'});
+		var date = new Date();
+		var current_hour = date.getHours();
+		var current_min = date.getMinutes();
+		var current_sec = date.getSeconds();
+		var time = current_hour+':'+current_min+':'+current_sec;
+		console.log(time+' - '+socket.username+' : '+message);
+		socketsObject[to].emit('new message',{msg:message,user:socket.username,flag:'private',time:time});
+		socketsObject[socket.username].emit('new message',{msg:message,user:socket.username,flag:'private',time:time});
 	});
 
 	// New User
 	socket.on('new user',function (data, callback) {
+		var date = new Date();
+		var current_hour = date.getHours();
+		var current_min = date.getMinutes();
+		var current_sec = date.getSeconds();
+		var time = current_hour+':'+current_min+':'+current_sec;
 		callback(true);
 		socket.username = data;
 		socketsObject[socket.username] = socket;
 		users.push(socket.username);
-		console.log('Username - '+socket.username+' connected with ip address - '+clientIp);
+		console.log('Username - '+socket.username+' connected with ip address - '+clientIp+' at '+time);
 		updateUsernames();
 		dropdown();
+		chatDiv();
 		io.sockets.emit('new connect',socket.username);
 	});
 
@@ -69,5 +87,9 @@ io.sockets.on('connection',function(socket){
 
 	function dropdown() {
 		io.sockets.emit('drop down',users);
+	}
+
+	function chatDiv() {
+		io.sockets.emit('new chatDiv',users);
 	}
 });

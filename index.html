@@ -31,12 +31,16 @@
 				</div>
 			</div>
 			<div class="col-md-8">
-				<div id="chat"></div>
+				<div id="chat">
+					<div class="chat well chat-window" id="chatAll"></div>
+				</div>
 				<form id="messageForm">
 					<div class="form-group">
 						<label>Enter Message</label>
 						<input type="text" class="form-control" id="message" required="required"/><br>
-						<select class="form-control" name="usersDropdown" id="usersDropdown" style="display: none;"></select><br>
+						<select class="form-control" name="usersDropdown" id="usersDropdown" style="display: none;">
+							<option value='All'>All</option>
+						</select><br>
 						<input type="submit" class="btn btn-primary" value="Send Message">
 					</div>
 				</form>

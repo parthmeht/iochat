@@ -11,47 +11,25 @@ $(function(){
   var $welcome = $('#welcome');
   var globalList=[];
   var chatDivList;
+  chatDivList=new Array();
+  chatDivList.push('chatAll');
   var flag = "chatAll";
   var dropdownValue;
+  var trigger = true;
 
-  $messageForm.submit(function(e) {
-    e.preventDefault();
-    $message.val(($message.val()).replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-    console.log('Submitted');
-    dropdownValue = document.getElementById('usersDropdown').value;
-    if (dropdownValue=='All') {
-      socket.emit('send message all',$message.val());
-    }else if (dropdownValue=='') {
-
-    }else {
-      socket.emit('send message',$message.val(),dropdownValue);
-    }
-    $message.val('');
-  });
-
-  socket.on('new message',function (data) {
-
-    if (userId==data.user) {
-      if (data.flag=='private') {
-        $('#chat'+dropdownValue.replace(/\s+/g, '-')).append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
-        autoScrollDown(dropdownValue.replace(/\s+/g, '-'));
-      }else{
-        $('#chatAll').append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
-        autoScrollDown('All');
-      }  
-    } else {
-      if (data.flag=='private') {
-        $('#chat'+data.user.replace(/\s+/g, '-')).append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
-        autoScrollDown(data.user.replace(/\s+/g, '-'));
-      }else{
-        $('#chatAll').append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
-        autoScrollDown('All');
-      }
-    }
+  socket.on('ip present',function () {
+    $('#username').prop('readonly', true);
+    $('#ipError').append('This ip address is already logged in...you cannot loggin again');
   });
 
   socket.on('all users',function (data) {
     globalList.push(data);
+    if (trigger) {
+      getUsers();
+      dropDown();
+      newChatDiv();
+      trigger = false;
+    }
   });
 
   $userForm.submit(function(e) {
@@ -85,69 +63,55 @@ $(function(){
     $username.val('');
   });
 
-  socket.on('get users',function(data){
-    var getUsers = '';
-    chatDivList=new Array()
-    chatDivList.push('chatAll');
-    for (i = 0; i < data.length; i++) {
-      if (data[i]!=userId) {
-        getUsers += '<div class="list-group-item"><button class="btn btn-primary" data-value="chat'+data[i].replace(/\s+/g, '-')+'" id="btn'+data[i].replace(/\s+/g, '-')+'" >'+data[i]+'</button><span class="glyphicon glyphicon-asterisk pull-right" style="color: green;" aria-hidden="true"></span></div>';
-        chatDivList.push('chat'+data[i].replace(/\s+/g, '-'));
+  function getUsers(){
+    for (var i = 0; i < globalList[0].length; i++) {
+      if (globalList[0][i]!=undefined) {
+        $users.append('<div class="list-group-item" id="li'+globalList[0][i].replace(/\s+/g, '-')+'"><button class="btn btn-primary" data-value="chat'+globalList[0][i].replace(/\s+/g, '-')+'" id="btn'+globalList[0][i].replace(/\s+/g, '-')+'" >'+globalList[0][i]+'</button><span class="glyphicon glyphicon-asterisk pull-right" style="color: green;" aria-hidden="true"></span></div>');
+        chatDivList.push('chat'+globalList[0][i].replace(/\s+/g, '-'));
       }
     }
-    $users.html(getUsers);
-  });
+  };
 
-  socket.on('drop down',function(data) {
-    var optionsAsString = "";
-    optionsAsString += "<option value='All'>All</option>";
-    for(var i = 0; i < data.length; i++) {
-      if (data[i]!=userId) {
-        optionsAsString += "<option value='" + data[i] + "'>" + data[i] + "</option>";
+  function dropDown() {
+    for (var i = 0; i < globalList[0].length; i++) {
+      if (globalList[0][i]!=undefined) {
+        $usersDropdown.append("<option value='" + globalList[0][i].replace(/\s+/g, '-') + "'>" + globalList[0][i] + "</option>");
       }
     }
-    $usersDropdown.html(optionsAsString);
-  });
+  };
 
-  socket.on('new chatDiv',function(data){
-    var chatDiv = '';
-    chatDiv += '<div class="chat well chat-window" id="chatAll"></div>';
-    for (i = 0; i < data.length; i++) {
-      if (data[i]!=userId) {
-        chatDiv += '<div class="chat well chat-window" id="chat'+data[i].replace(/\s+/g, '-')+'"></div>';
-        $( "#chat"+data[i].replace(/\s+/g, '-')).toggle();
+  function newChatDiv(){
+    for (var i = 0; i < globalList[0].length; i++) {
+      if (globalList[0][i]!=undefined) {
+        $('#chat').append('<div class="chat well chat-window" id="chat'+globalList[0][i].replace(/\s+/g, '-')+'"></div>');
       }
     }
-    $('#chat').html(chatDiv);
-    for (i = 0; i < data.length; i++){
-      if (data[i]!=userId){
-        $( "#chat"+data[i].replace(/\s+/g, '-')).toggle();
+    for (var i = 0; i < globalList[0].length; i++) {
+      if (globalList[0][i]!=undefined) {
+        $( "#chat"+globalList[0][i].replace(/\s+/g, '-')).toggle();
       }
     }
-  });
-
-  $('#message').on("keypress", function(e) {
-    if (e.which === 32 && !this.value.length)
-        e.preventDefault();
-  });
-
-  $('#username').on("keypress", function(e) {
-    if (e.which === 32 && !this.value.length)
-        e.preventDefault();
-  });
+  };
 
   socket.on('new connect',function (data) {
     $('#chatAll').append('<div class="col-md-offset-4 col-md-4" style="color:green;"><strong>'+data+' Connected</strong></div>');
+    if (data!=userId) {
+      $users.append('<div class="list-group-item" id="li'+data.replace(/\s+/g, '-')+'"><button class="btn btn-primary" data-value="chat'+data.replace(/\s+/g, '-')+'" id="btn'+data.replace(/\s+/g, '-')+'" >'+data+'</button><span class="glyphicon glyphicon-asterisk pull-right" style="color: green;" aria-hidden="true"></span></div>');
+      chatDivList.push('chat'+data.replace(/\s+/g, '-'));
+      $usersDropdown.append("<option value='" + data + "'>" + data + "</option>");
+      $('#chat').append('<div class="chat well chat-window" id="chat'+data.replace(/\s+/g, '-')+'"></div>');
+      $( "#chat"+data.replace(/\s+/g, '-')).toggle();
+    }
   });
 
   socket.on('new disconnect',function (data) {
     $('#chatAll').append('<div class="col-md-offset-4 col-md-4" style="color:red;"><strong>'+data+' Disconnected</strong></div>');
+    if (data!=userId) {
+      $('#chat'+data.replace(/\s+/g, '-')).remove();
+      $('#btn'+data.replace(/\s+/g, '-')).remove();
+      $('#li'+data.replace(/\s+/g, '-')).remove();
+    }
   });
-
-  /*socket.on('ip present',function () {
-    $('#username').prop('readonly', true);
-    $('#ipError').append('This ip address is already logged in...you cannot loggin again');
-  });*/
 
   $(document).on('click','button', function(){
     var value = $(this).data('value');
@@ -165,5 +129,50 @@ $(function(){
     $('#chat'+data).animate({
       scrollTop: $('#chat'+data).get(0).scrollHeight}, 2000);
   }
+
+  $messageForm.submit(function(e) {
+    e.preventDefault();
+    $message.val(($message.val()).replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+    console.log('Submitted');
+    dropdownValue = document.getElementById('usersDropdown').value;
+    if (dropdownValue=='All') {
+      socket.emit('send message all',$message.val());
+    }else if (dropdownValue=='') {
+
+    }else {
+      socket.emit('send message',$message.val(),dropdownValue);
+    }
+    $message.val('');
+  });
+
+  socket.on('new message',function (data) {
+    if (userId==data.user) {
+      if (data.flag=='private') {
+        $('#chat'+dropdownValue.replace(/\s+/g, '-')).append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
+        autoScrollDown(dropdownValue.replace(/\s+/g, '-'));
+      }else{
+        $('#chatAll').append('<div class="col-md-offset-8 col-sm-4 bubble bubble-user"><strong>'+data.user+': </strong>'+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
+        autoScrollDown('All');
+      }
+    } else {
+      if (data.flag=='private') {
+        $('#chat'+data.user.replace(/\s+/g, '-')).append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
+        autoScrollDown(data.user.replace(/\s+/g, '-'));
+      }else{
+        $('#chatAll').append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
+        autoScrollDown('All');
+      }
+    }
+  });
+
+  $('#message').on("keypress", function(e) {
+    if (e.which === 32 && !this.value.length)
+        e.preventDefault();
+  });
+
+  $('#username').on("keypress", function(e) {
+    if (e.which === 32 && !this.value.length)
+        e.preventDefault();
+  });
 
 });

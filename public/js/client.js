@@ -16,11 +16,12 @@ $(function(){
   var flag = "chatAll";
   var dropdownValue;
   var trigger = true;
+  var bagdgeVal = {"All":0};
 
-  socket.on('ip present',function () {
+  /*socket.on('ip present',function () {
     $('#username').prop('readonly', true);
     $('#ipError').append('This ip address is already logged in...you cannot loggin again');
-  });
+  });*/
 
   socket.on('all users',function (data) {
     globalList.push(data);
@@ -66,8 +67,9 @@ $(function(){
   function getUsers(){
     for (var i = 0; i < globalList[0].length; i++) {
       if (globalList[0][i]!=undefined) {
-        $users.append('<div class="list-group-item" id="li'+globalList[0][i].replace(/\s+/g, '-')+'"><button class="btn btn-primary" data-value="chat'+globalList[0][i].replace(/\s+/g, '-')+'" id="btn'+globalList[0][i].replace(/\s+/g, '-')+'" >'+globalList[0][i]+'</button><span class="glyphicon glyphicon-asterisk pull-right" style="color: green;" aria-hidden="true"></span></div>');
+        $users.append('<div class="list-group-item" id="li'+globalList[0][i].replace(/\s+/g, '-')+'"><button class="btn btn-primary" style="width:80%;" data-value="chat'+globalList[0][i].replace(/\s+/g, '-')+'" id="btn'+globalList[0][i].replace(/\s+/g, '-')+'" >'+globalList[0][i]+' <span class="badge" id="badge'+globalList[0][i].replace(/\s+/g, '-')+'"></span></button></div>');
         chatDivList.push('chat'+globalList[0][i].replace(/\s+/g, '-'));
+        bagdgeVal[globalList[0][i].replace(/\s+/g, '-')]=0;
       }
     }
   };
@@ -96,8 +98,9 @@ $(function(){
   socket.on('new connect',function (data) {
     $('#chatAll').append('<div class="col-md-offset-4 col-md-4" style="color:green;"><strong>'+data+' Connected</strong></div>');
     if (data!=userId) {
-      $users.append('<div class="list-group-item" id="li'+data.replace(/\s+/g, '-')+'"><button class="btn btn-primary" data-value="chat'+data.replace(/\s+/g, '-')+'" id="btn'+data.replace(/\s+/g, '-')+'" >'+data+'</button><span class="glyphicon glyphicon-asterisk pull-right" style="color: green;" aria-hidden="true"></span></div>');
+      $users.append('<div class="list-group-item" id="li'+data.replace(/\s+/g, '-')+'"><button class="btn btn-primary" style="width:80%;" data-value="chat'+data.replace(/\s+/g, '-')+'" id="btn'+data.replace(/\s+/g, '-')+'" >'+data+' <span class="badge" id="badge'+data.replace(/\s+/g, '-')+'"></span></button></div>');
       chatDivList.push('chat'+data.replace(/\s+/g, '-'));
+      bagdgeVal[data.replace(/\s+/g, '-')]=0;
       $usersDropdown.append("<option value='" + data + "'>" + data + "</option>");
       $('#chat').append('<div class="chat well chat-window" id="chat'+data.replace(/\s+/g, '-')+'"></div>');
       $( "#chat"+data.replace(/\s+/g, '-')).toggle();
@@ -121,6 +124,8 @@ $(function(){
         $('#'+chatDivList[i]).toggle();
         $("#usersDropdown").val(chatDivList[i].replace('chat', ''));
         flag = chatDivList[i];
+        $('#badge'+chatDivList[i].replace('chat', '')).html('');
+        bagdgeVal[chatDivList[i].replace('chat', '')]=0;
       }
     }
   });
@@ -155,12 +160,27 @@ $(function(){
         autoScrollDown('All');
       }
     } else {
+      /*$.notify(data.user+" : "+data.msg,{
+        className: 'success',
+        position:"top center"
+      });*/
+      $.notify({
+        title: data.user+" : "+data.msg,
+        button: 'Reply'
+      }, {
+        style: 'notification',
+        autoHide: true,
+        clickToHide: true,
+        position:"top center"
+      });
       if (data.flag=='private') {
         $('#chat'+data.user.replace(/\s+/g, '-')).append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
         autoScrollDown(data.user.replace(/\s+/g, '-'));
+        $('#badge'+data.user.replace(/\s+/g, '-')).html(++bagdgeVal[data.user.replace(/\s+/g, '-')]);
       }else{
         $('#chatAll').append('<div class="col-sm-4 col-md-offset-right-8 bubble bubble-others"><strong>'+data.user+':</strong> '+data.msg+'<span class="timestamp">'+data.time+'</span></div>');
         autoScrollDown('All');
+        $('#badgeAll').html(++bagdgeVal['All']);
       }
     }
   });
@@ -173,6 +193,32 @@ $(function(){
   $('#username').on("keypress", function(e) {
     if (e.which === 32 && !this.value.length)
         e.preventDefault();
+  });
+
+  //add a new style 'notification'
+  $.notify.addStyle('notification', {
+    html:
+      "<div>" +
+        "<div class='clearfix'>" +
+          "<div class='title' data-notify-html='title'/>" +
+          "<div class='buttons'>" +
+            "<button class='yes btn' data-notify-text='button'></button>" +
+            "<button class='no btn'>Cancel</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>"
+  });
+
+  //listen for click events from this style
+  $(document).on('click', '.notifyjs-notification-base .no', function() {
+    //programmatically trigger propogating hide event
+    $(this).trigger('notify-hide');
+  });
+  $(document).on('click', '.notifyjs-notification-base .yes', function() {
+    //show button text
+    alert($(this).text() + " clicked!");
+    //hide notification
+    $(this).trigger('notify-hide');
   });
 
 });

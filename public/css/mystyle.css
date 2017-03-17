@@ -1,4 +1,3 @@
-
 body{
   margin-top: 30px;
   background-color: cadetblue;
@@ -30,14 +29,46 @@ body{
    margin-right: 66.66666667%;
  }
 
- .chat-window{
-   height: 400px;
-   position: static;
-   overflow: auto;
- }
+.chat-window{
+  height: 400px;
+  position: static;
+  overflow: auto;
+}
 
- .timestamp{
-   color: red;
-   vertical-align: sub;
-   font-size: .8em;
- }
+.timestamp{
+  color: red;
+  vertical-align: sub;
+  font-size: .8em;
+}
+
+.notifyjs-notification-base {
+  opacity: 0.85;
+  width: 200px;
+  background: #F5F5F5;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.notifyjs-notification-base .title {
+  width: 100px;
+  float: left;
+  margin: 10px 0 0 25px;
+  font-size: larger;
+  color: navy;
+}
+
+.notifyjs-notification-base .buttons {
+  float: none;
+  font-size: 9px;
+  padding: 5px;
+  margin: 10px;
+  margin-top: 40px;
+}
+
+.notifyjs-notification-base button {
+  font-size: 13px;
+  padding: 5px;
+  width: 60px;
+  margin-left: 10px;
+  margin-right: 10px;
+}

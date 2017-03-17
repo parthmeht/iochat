@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/css/mystyle.css">
 	<script type="text/javascript" src="/static/js/client.js"></script>
+	<script type="text/javascript" src="/static/js/notify.js"></script>
 </head>
 <body>
 	<div class="jumbotron" style="width: 80%;margin-left: 10%;border-radius: 10px;">
@@ -26,7 +27,7 @@
 			<div id="welcome"></div>
 			<div class="col-md-4">
 				<div class="well">
-					<h3>Online User	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-primary" data-value="chatAll" id="btngroup">Group</button></h3>
+					<h3>Online User	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-primary" data-value="chatAll" id="btngroup">Group <span class="badge" id="badgeAll"></span></button></h3>
 					<div class="list-group" id="users"></div>
 				</div>
 			</div>
